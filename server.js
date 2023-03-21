@@ -7,6 +7,8 @@ const { Client, GatewayIntentBits } = require("discord.js");
 // const openai = new OpenAI(process.env.OPENAI_API_KEY);
 
 const { Configuration, OpenAIApi } = require("openai");
+// const Tesseract = require("tesseract.js");
+const axios = require("axios");
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -35,7 +37,7 @@ client.on("messageCreate", async (message) => {
     message.channel.send(
       "This bot can generate text from images. Just send an image and wait for the bot to respond."
     );
-  } else {
+  } else if (message.content !== "!help" && message.content) {
     const response = await newAI.createCompletion({
       model: "text-davinci-003",
       prompt: message.content,
@@ -49,19 +51,52 @@ client.on("messageCreate", async (message) => {
     message.reply(response.data.choices[0].text);
   }
 
-  if (message.attachments.size > 0) {
-    const attachment = message.attachments.first();
-    const response = await newAI.createCompletion({
-      model: "image-alpha-001",
-      prompt: "Generate caption for an image:",
-      image: attachment,
-      n: 1,
-      size: "512x512",
-    });
-    console.log(response.data);
-    const caption = response.data[0].caption;
-    message.reply(`Caption: ${caption}`);
-  }
+  // if (message.attachments.size > 0) {
+  //   const attachment = message.attachments.first().url;
+  // request.get({ url: attachment, encoding: null }, (err, resp, body) => {
+  //   if (err) {
+  //     message.reply("An error occured");
+  //   } else {
+  //     Tesseract.recognize(body)
+  //       .then((result) => {
+  //         // console.log(result.data.text);
+  //         message.reply(result.data.text);
+  //       })
+  //       .catch((err) => {
+  //         message.reply("Error recognizing the image");
+  //       });
+  //   }
+  // });
+  // const response = await newAI.createCompletion({
+  //   model: "image-alpha-001",
+  //   prompt: "Generate caption for an image: ",
+  //   image: attachment,
+  //   n: 1,
+  //   size: "512x512",
+  // });
+  // const apiKey = process.env.OPENAI_API_KEY;
+  // const endpoint = "https://api.openai.com/v1/images/generations";
+  // const prompt = `Generate a caption for this image: ${attachment}`;
+
+  // const data = {
+  //   model: "image-alpha-001",
+  //   prompt,
+  //   num_images: 1,
+  //   size: "1024x1024",
+  //   response_format: "url",
+  // };
+  // const headers = {
+  //   // "Content-Type": "application/json",
+  //   Authorization: `Bearer ${apiKey}`,
+  // };
+  // const response = await axios.post(endpoint, data, { headers });
+  // console.log(response.data.data);
+  // const captionUrl = response.data.data[0].url;
+  // const captionResponse = await axios.get(captionUrl, { headers });
+  // console.log(captionResponse.data);
+  // const caption = captionResponse.data.data[0].text;
+  // message.reply(`Caption: ${caption}`);
+  // }
 });
 
 client.login(process.env.BOT_TOKEN);
