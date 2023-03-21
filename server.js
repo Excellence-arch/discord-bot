@@ -25,6 +25,7 @@ const client = new Client({
     GatewayIntentBits.DirectMessageTyping,
   ],
 });
+let allMsg = [];
 
 https: client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -38,17 +39,24 @@ client.on("messageCreate", async (message) => {
       "This bot can generate text from images. Just send an image and wait for the bot to respond."
     );
   } else if (message.content !== "!help" && message.content) {
-    const response = await newAI.createCompletion({
-      model: "text-davinci-003",
-      prompt: message.content,
+    allMsg.push({ role: "user", content: message.content });
+    console.log(allMsg);
+    const response = await newAI.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: allMsg,
+      // prompt: message.content,
       temperature: 0.7,
       max_tokens: 256,
       top_p: 1,
       frequency_penalty: 0,
       presence_penalty: 0,
     });
-    // console.log(response.data.choices[0].text);
-    message.reply(response.data.choices[0].text);
+    allMsg.push({
+      role: "assistant",
+      content: response.data.choices[0].message.content,
+    });
+    console.log(response.data.choices[0].message);
+    message.reply(response.data.choices[0].message.content);
   }
 
   // if (message.attachments.size > 0) {
